@@ -1,5 +1,5 @@
 `timescale 1ns / 10ps
-/* verilator coverage_off */
+/* verilator coverage_off */ 
 
 module tb_usb_tx ();
 
