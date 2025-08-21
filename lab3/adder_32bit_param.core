@@ -1,0 +1,103 @@
+CAPI=2:
+name: "u337mg136:ece337:adder_32bit_param:1.0.0"
+description: "32-bit ripple-carry adder"
+
+filesets:
+    rtl:
+        files:
+            - "source/adder_32bit_param.sv"
+        file_type: systemVerilogSource
+        depend:
+            - "u337mg136:ece337:adder_nbit"
+
+    synth:
+        depend:
+            - "ece337:tech:AMI_05_LIB"
+            - "u337mg136:ece337:adder_32bit_param_syn"
+
+    tb:
+        files:
+            - "waves/adder_32bit_param.do": { file_type: user }
+            - "waves/adder_32bit_param.gtkw": { file_type: user }
+        file_type: systemVerilogSource
+        depend:
+            - "u337mg136:ece337:tb_adder_32bit"
+
+    synfiles:
+        depend:
+            - "u337mg136:ece337:synfiles"
+
+targets:
+    default: &default
+        filesets:
+            - rtl
+        toplevel: adder_32bit_param
+
+    sim: &sim
+        <<: *default
+        default_tool: verilator
+        filesets_append:
+            - tb
+        toplevel: tb_adder_32bit
+        tools:
+            modelsim:
+                vsim_options:
+                    - -vopt
+                    - -voptargs='+acc'
+                    - -t ps
+                    - -do waves/adder_32bit_param.do
+                    - -onfinish stop
+                    - -do "set PrefSource(OpenOnFinish) 0 ; set PrefMain(LinePrefix) \"\" ; set PrefMain(colorizeTranscript) 1"
+                    - -coverage
+                vlog_options:
+                    - +cover
+            verilator:
+                verilator_options:
+                    - --cc
+                    - --trace
+                    - --main
+                    - --timing
+                    - --coverage
+                make_options:
+                    - -j
+        parameters:
+            - adder_type=1
+
+    lint:
+        <<: *default
+        default_tool: verilator
+        filesets_append:
+            - tb
+        tools:
+            verilator:
+                mode: lint-only
+                verilator_options:
+                    - --timing
+                    - -Wall
+
+    syn:
+        <<: *default
+        filesets_append:
+            - synfiles
+        default_tool: design_compiler
+        toplevel: adder_32bit_param
+        tools:
+            design_compiler:
+                script_dir: "src/u337mg136_ece337_synfiles_0"
+                dc_script: "synth.tcl"
+                report_dir: "reports"
+                target_library: "/home/ecegrid/a/ece337/summer24-refactor/tech/ami05/osu05_stdcells.db"
+                link_library: "/home/ecegrid/a/ece337/summer24-refactor/tech/ami05/osu05_stdcells.db dw_foundation.sldb"
+
+    syn_sim:
+        <<: *sim
+        filesets:
+            - synth
+            - tb
+
+parameters:
+    adder_type:
+        datatype: int
+        description: Design to test (param -> 1, auto -> 2)
+        paramtype: vlogparam
+

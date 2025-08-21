@@ -1,0 +1,13 @@
+CAPI=2:
+name: "u337mg136:ece337:sync"
+
+filesets:
+    rtl:
+        files:
+            - "source/sync.sv"
+        file_type: systemVerilogSource
+
+targets:
+    default:
+        filesets:
+            - rtl
